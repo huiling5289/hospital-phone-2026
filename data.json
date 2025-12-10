@@ -5678,7 +5678,7 @@
     {
         "department": "",
         "extension": "",
-        "name": "信實-急診.中午.小夜.大夜",
+        "name": "信實-急診",
         "mobile_short_code": "69524"
     },
     {
@@ -5714,7 +5714,7 @@
     {
         "department": "",
         "extension": "",
-        "name": "信實-開刀房、心導管",
+        "name": "信實-OR、心導",
         "mobile_short_code": "69530"
     },
     {
@@ -8321,4 +8321,5 @@
         "name": "曾芃廩",
         "mobile_short_code": ""
     }
+
 ]
