@@ -5,247 +5,268 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>電話查詢系統</title>
     <style>
-        /* 確保背景填滿整個視窗 */
+        /* ========== CSS 樣式區 ========== */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
         }
 
-        /* 預設背景樣式 (電腦版背景) */
         body {
             font-family: Arial, sans-serif;
-            font-size: 18px; /* 全局字體大小 */
-            background-image: url('517.jpg'); /* 電腦版背景圖片 */
+            font-size: 18px;
+            /* 背景設定 */
+            background-image: url('517.jpg'); 
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
             background-attachment: fixed;
+            background-color: #f0f0f0;
         }
 
-        /* 手機版背景樣式 */
+        /* 手機版背景 */
         @media (max-width: 768px) {
             body {
-                background-image: url('703.jpg'); /* 手機版背景圖片 */
-                background-attachment: scroll; /* 手機版背景不固定 */
+                background-image: url('703.jpg');
+                background-attachment: scroll;
             }
         }
 
         .container {
             max-width: 600px;
-            margin: 20px auto 0;
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px; /* 保持圓角 */
-            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 添加陰影效果 */
-            border: 2px solid #ccc; /* 將邊框粗細改為 4px */
+            margin: 40px auto 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 1px solid #ccc;
         }
 
         h1 {
             text-align: center;
             color: #333;
             font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .search-container {
             display: flex;
-            flex-direction: row;
+            gap: 10px;
             margin-bottom: 10px;
         }
 
         #searchInput {
             flex-grow: 1;
             padding: 12px;
-            font-size: 18px; /* 調整輸入框字體大小 */
-            border: 1px solid #ccc; /* 灰色邊框 */
-            border-radius: 2px;
-            box-sizing: border-box;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         #searchButton {
-            padding: 10px 15px;
-            font-size: 18px; /* 調整按鈕字體大小 */
+            padding: 10px 20px;
+            font-size: 18px;
             background-color: #007bff;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            margin-left: 5px;
         }
 
         #searchButton:hover {
             background-color: #0056b3;
         }
 
-        .input-note {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 10px;
-            margin-left: 5px;
+        #searchButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
 
         .system-remark {
-            font-size: 16px;
-            color: #888;
-            text-align: left; /* 改為靠左對齊 */
-            margin-top: 15px;
-            margin-bottom: -10px;
-            padding: 5px;
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            text-align: right;
         }
 
-        #resultsTable {
+        #resultsContainer {
+            margin-top: 20px;
+        }
+
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            border: 1px solid #ccc; /* 表格外框灰色細邊框 */
+            margin-top: 10px;
         }
 
-        #resultsTable th, #resultsTable td {
-            border: 1px solid #ccc; /* 單元格灰色細邊框 */
-            padding: 10px; /* 增加單元格內邊距 */
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 8px;
             text-align: left;
-            word-break: break-word;
-            font-size: 18px; /* 調整表格字體大小 */
+            font-size: 16px;
         }
 
-        #resultsTable th {
+        th {
             background-color: #f2f2f2;
-            color: #333;
-            white-space: nowrap; /* 加入這一行：強制文字不換行 */
+            white-space: nowrap;
         }
 
-        #resultsTable tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        #resultsTable tr:hover {
-            background-color: #e9e9e9;
-        }
-
-        .loading, .error, .no-results {
+        .message {
             text-align: center;
-            color: #777;
-            margin-top: 20px;
-            font-size: 18px; /* 調整提示文字字體大小 */
             padding: 10px;
-        }
-
-        .error {
-            color: red;
-            font-weight: bold;
-        }
-
-        .no-results {
             color: #555;
         }
-
-        /* 手機版樣式調整 */
+        
         @media (max-width: 768px) {
-            .container {
-                margin: 10px; /* 增加手機版的邊界 */
-                padding: 15px; /* 保持內部間距 */
-            }
-
-            h1 {
-                font-size: 22px;
-            }
-
-            #searchInput {
-                padding: 10px;
-                font-size: 16px;
-            }
-
-            #searchButton {
-                padding: 8px 12px;
-                font-size: 16px;
-            }
-
-            .input-note, .system-remark {
-                font-size: 14px;
-            }
-
-            #resultsTable th, #resultsTable td {
-                font-size: 14px;
-                padding: 8px 2px; /* 修改這一行：上下維持8px，左右改為2px，節省空間 */
-            }
+            .container { margin: 20px 10px; }
+            #searchInput, #searchButton { font-size: 16px; }
         }
     </style>
 </head>
 <body>
+
     <div class="container">
         <h1>電話查詢小幫手</h1>
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="輸入關鍵字 (姓名、單位或地點)" />
+            <input type="text" id="searchInput" placeholder="輸入姓名、單位或分機" />
             <button id="searchButton">查詢</button>
         </div>
-        <p class="system-remark">此系統僅供方便查詢使用，不作即時更新連動</p>
+        <div class="system-remark">* 僅供內部查詢使用</div>
         <div id="resultsContainer"></div>
     </div>
 
     <script>
+        // ========== 設定區 ==========
+        
+        // 1. 請將這裡換成您剛剛部署得到的 Google Apps Script 網址
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlseE37yzuF1n6nmUGsmDhnpOfx49vSYeWTByW0CNIKlRik1gGLBPlflrG21uJSWBP/exec';
+
+        // 2. 本地資料 (如果讀不到 data.json，就會用這個)
+        let localData = [
+            { name: "測試員", unit: "資訊部", ext: "123", phone: "0900-000-000" }
+        ];
+
+        // 嘗試讀取 data.json
+        fetch('data.json')
+            .then(res => {
+                if(res.ok) return res.json();
+            })
+            .then(data => {
+                if(data) {
+                    localData = data;
+                    console.log('成功載入 data.json');
+                }
+            })
+            .catch(err => console.log('使用預設資料'));
+
+
+        // ========== 程式邏輯區 ==========
+
         const searchInput = document.getElementById('searchInput');
         const searchButton = document.getElementById('searchButton');
-        const resultsContainerDiv = document.getElementById('resultsContainer');
+        const resultsContainer = document.getElementById('resultsContainer');
 
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxlseE37yzuF1n6nmUGsmDhnpOfx49vSYeWTByW0CNIKlRik1gGLBPlflrG21uJSWBP/exec'; // 替換為您的 Google Apps Script 網址
-
-        // 獲取用戶 IP
+        // 獲取 IP (選擇性功能)
         async function getUserIP() {
             try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                return data.ip;
-            } catch (error) {
-                console.error('無法獲取用戶 IP:', error);
-                return '未知';
+                const res = await fetch('https://api.ipify.org?format=json');
+                const json = await res.json();
+                return json.ip;
+            } catch (e) {
+                return 'unknown';
             }
         }
 
-        // 查詢資料並記錄到 Google Sheet
+        // 主功能：查詢 + 記錄
         async function performSearch() {
-            const query = searchInput.value.trim();
-            if (!query) {
-                resultsContainerDiv.innerHTML = '<p class="no-results">請輸入查詢關鍵字。</p>';
+            const keyword = searchInput.value.trim();
+            if (!keyword) {
+                alert('請輸入關鍵字');
                 return;
             }
 
-            resultsContainerDiv.innerHTML = '<p class="loading">查詢中...</p>';
+            // 鎖定按鈕避免重複按
+            searchButton.disabled = true;
+            searchButton.textContent = '查詢中...';
+            resultsContainer.innerHTML = '<div class="message">搜尋中...</div>';
 
             try {
-                // 獲取用戶 IP 和裝置類型
-                const userIP = await getUserIP();
-                const userAgent = navigator.userAgent;
-
-                // 發送查詢記錄到 Google Apps Script
-                await fetch(scriptUrl, {
+                // --- 步驟 A: 記錄到 Google Sheet ---
+                const ip = await getUserIP();
+                
+                // 這裡使用 'no-cors' 模式，這是讓資料能成功寫入 Sheet 的關鍵
+                // 雖然瀏覽器收不到「成功」的回應，但資料會送達
+                await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    mode: 'no-cors', 
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
                     body: JSON.stringify({
-                        keyword: query,
+                        keyword: keyword,
                         source: 'web',
-                        userIP: userIP,
-                        userAgent: userAgent
+                        userIP: ip,
+                        userAgent: navigator.userAgent
                     })
                 });
 
-                // 顯示查詢完成提示
-                resultsContainerDiv.innerHTML = '<p class="loading">查詢完成，記錄已儲存。</p>';
+                // --- 步驟 B: 顯示搜尋結果 ---
+                displayResults(keyword);
 
-                // 執行本地查詢功能（略）
             } catch (error) {
-                resultsContainerDiv.innerHTML = `<p class="error">查詢失敗: ${error.message}</p>`;
+                console.error('Error:', error);
+                // 就算記錄失敗，也要顯示搜尋結果給使用者看
+                displayResults(keyword);
+            } finally {
+                searchButton.disabled = false;
+                searchButton.textContent = '查詢';
             }
         }
 
-        searchButton.addEventListener('click', performSearch);
-        searchInput.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                performSearch();
+        function displayResults(keyword) {
+            const lowerKey = keyword.toLowerCase();
+            const results = localData.filter(item => 
+                (item.name && item.name.toLowerCase().includes(lowerKey)) ||
+                (item.unit && item.unit.toLowerCase().includes(lowerKey)) ||
+                (item.ext && item.ext.includes(lowerKey))
+            );
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `<div class="message">找不到「${keyword}」。</div>`;
+                return;
             }
+
+            let html = `<table>
+                        <thead>
+                            <tr>
+                                <th>姓名</th>
+                                <th>單位</th>
+                                <th>分機</th>
+                                <th>電話</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            results.forEach(item => {
+                html += `<tr>
+                            <td>${item.name || ''}</td>
+                            <td>${item.unit || ''}</td>
+                            <td>${item.ext || ''}</td>
+                            <td>${item.phone || ''}</td>
+                         </tr>`;
+            });
+            html += `</tbody></table>`;
+            resultsContainer.innerHTML = html;
+        }
+
+        // 按下 Enter 也可以搜尋
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
         });
+        
+        // 點擊按鈕搜尋
+        searchButton.addEventListener('click', performSearch);
+
     </script>
 </body>
 </html>
