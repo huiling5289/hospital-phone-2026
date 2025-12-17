@@ -234,11 +234,18 @@
         async function logToGoogleSheet(keyword) {
             try {
                 const ip = await getUserIP();
+                
+                // 判斷裝置類型
+                const userAgent = navigator.userAgent;
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+                const deviceType = isMobile ? '手機' : '電腦';
+
                 const logData = {
                     keyword: keyword,
                     source: 'web',
                     userIP: ip,
-                    userAgent: navigator.userAgent
+                    deviceType: deviceType, // 新增：裝置類型 (手機/電腦)
+                    userAgent: userAgent
                 };
 
                 // 使用 no-cors 模式發送
@@ -250,7 +257,7 @@
                     },
                     body: JSON.stringify(logData)
                 });
-                console.log('Log sent to Google Sheet');
+                console.log('Log sent to Google Sheet: ' + deviceType);
             } catch (e) {
                 console.error('Log failed', e);
             }
