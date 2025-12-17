@@ -55,6 +55,8 @@
             flex-direction: row;
             margin-bottom: 10px;
             align-items: center; /* 確保垂直置中對齊 */
+            width: 100%; /* 確保容器寬度正確 */
+            box-sizing: border-box; /* 確保內距計算正確 */
         }
 
         #searchInput {
@@ -64,6 +66,7 @@
             border: 1px solid #ccc; /* 灰色邊框 */
             border-radius: 2px;
             box-sizing: border-box;
+            min-width: 0; /* 關鍵修改：允許輸入框在空間不足時縮小，解決爆版問題 */
         }
 
         #searchButton {
@@ -75,7 +78,8 @@
             border-radius: 4px;
             cursor: pointer;
             margin-left: 5px;
-            white-space: nowrap; /* 關鍵修改：強制文字不換行，確保是橫式 */
+            white-space: nowrap; /* 強制文字不換行 */
+            flex-shrink: 0; /* 確保按鈕不會被壓縮 */
         }
 
         #searchButton:hover {
@@ -116,7 +120,7 @@
         #resultsTable th {
             background-color: #f2f2f2;
             color: #333;
-            white-space: nowrap; /* 加入這一行：強制文字不換行 */
+            white-space: nowrap; /* 強制文字不換行 */
         }
 
         #resultsTable tr:nth-child(even) {
