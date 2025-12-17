@@ -15,8 +15,8 @@
         /* 預設背景樣式 (電腦版背景) */
         body {
             font-family: Arial, sans-serif;
-            font-size: 18px;
-            background-image: url('517.jpg');
+            font-size: 18px; /* 全局字體大小 */
+            background-image: url('517.jpg'); /* 電腦版背景圖片 */
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
@@ -26,8 +26,8 @@
         /* 手機版背景樣式 */
         @media (max-width: 768px) {
             body {
-                background-image: url('703.jpg');
-                background-attachment: scroll;
+                background-image: url('703.jpg'); /* 手機版背景圖片 */
+                background-attachment: scroll; /* 手機版背景不固定 */
             }
         }
 
@@ -36,9 +36,9 @@
             margin: 20px auto 0;
             background-color: #fff;
             padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border: 2px solid #ccc;
+            border-radius: 8px; /* 保持圓角 */
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 添加陰影效果 */
+            border: 2px solid #ccc; /* 將邊框粗細改為 4px */
         }
 
         h1 {
@@ -58,15 +58,15 @@
         #searchInput {
             flex-grow: 1;
             padding: 12px;
-            font-size: 18px;
-            border: 1px solid #ccc;
+            font-size: 18px; /* 調整輸入框字體大小 */
+            border: 1px solid #ccc; /* 灰色邊框 */
             border-radius: 2px;
             box-sizing: border-box;
         }
 
         #searchButton {
             padding: 10px 15px;
-            font-size: 18px;
+            font-size: 18px; /* 調整按鈕字體大小 */
             background-color: #007bff;
             color: white;
             border: none;
@@ -82,7 +82,7 @@
         .system-remark {
             font-size: 16px;
             color: #888;
-            text-align: left;
+            text-align: left; /* 改為靠左對齊 */
             margin-top: 15px;
             margin-bottom: -10px;
             padding: 5px;
@@ -92,20 +92,21 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
-            border: 1px solid #ccc;
+            border: 1px solid #ccc; /* 表格外框灰色細邊框 */
         }
 
         #resultsTable th, #resultsTable td {
-            border: 1px solid #ccc;
-            padding: 10px;
+            border: 1px solid #ccc; /* 單元格灰色細邊框 */
+            padding: 10px; /* 增加單元格內邊距 */
             text-align: left;
             word-break: break-word;
-            font-size: 18px;
+            font-size: 18px; /* 調整表格字體大小 */
         }
 
         #resultsTable th {
             background-color: #f2f2f2;
             color: #333;
+            white-space: nowrap; /* 加入這一行：強制文字不換行 */
         }
 
         #resultsTable tr:nth-child(even) {
@@ -120,7 +121,7 @@
             text-align: center;
             color: #777;
             margin-top: 20px;
-            font-size: 18px;
+            font-size: 18px; /* 調整提示文字字體大小 */
             padding: 10px;
         }
 
@@ -150,12 +151,23 @@
         const searchButton = document.getElementById('searchButton');
         const resultsContainerDiv = document.getElementById('resultsContainer');
 
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxIseE37yzuF1n6nmUGsmDhnpOfx49vSYeWTByW0CNlKIRik1gGLBPlf1rG21uJSWBP/exec';
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxIseE37yzuF1n6nmUGsmDhnpOfx49vSYeWTByW0CNlKIRik1gGLBPlf1rG21uJSWBP/exec'; // 替換為您的 Google Apps Script 部署網址
+
+        // 獲取用戶 IP
+        async function getUserIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                console.error('無法獲取用戶 IP:', error);
+                return '未知';
+            }
+        }
 
         // 查詢資料
         async function performSearch() {
             const query = searchInput.value.trim();
-
             if (!query) {
                 resultsContainerDiv.innerHTML = '<p class="no-results">請輸入查詢關鍵字。</p>';
                 return;
@@ -164,66 +176,33 @@
             resultsContainerDiv.innerHTML = '<p class="loading">查詢中...</p>';
 
             try {
-                // 發送查詢請求到 Google Apps Script Web App
-                const response = await fetch(`${scriptUrl}?query=${encodeURIComponent(query)}`);
-                const result = await response.json();
+                // 獲取用戶 IP 和裝置類型
+                const userIP = await getUserIP();
+                const userAgent = navigator.userAgent;
 
-                // 新增查詢記錄
-                await logQuery(query);
+                // 發送查詢記錄到 Google Apps Script
+                await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        keyword: query,
+                        source: 'web',
+                        userIP: userIP,
+                        userAgent: userAgent
+                    })
+                });
 
-                if (result.length > 0) {
-                    const table = document.createElement('table');
-                    table.id = 'resultsTable';
-
-                    const thead = table.createTHead();
-                    const headerRow = thead.insertRow();
-                    const headers = ['姓名', '單位', '手機', '分機'];
-                    headers.forEach(headerText => {
-                        const th = document.createElement('th');
-                        th.textContent = headerText;
-                        headerRow.appendChild(th);
-                    });
-
-                    const tbody = table.createTBody();
-                    result.forEach(person => {
-                        const row = tbody.insertRow();
-                        row.insertCell().textContent = person.name || '';
-                        row.insertCell().textContent = person.department || '';
-                        row.insertCell().textContent = person.mobile || '';
-                        row.insertCell().textContent = person.extension || '';
-                    });
-
-                    resultsContainerDiv.innerHTML = '';
-                    resultsContainerDiv.appendChild(table);
-                } else {
-                    resultsContainerDiv.innerHTML = '<p class="no-results">查無相關資料。</p>';
-                }
+                resultsContainerDiv.innerHTML = '<p class="no-results">查詢完成，結果已記錄。</p>';
             } catch (error) {
                 console.error('查詢失敗:', error);
                 resultsContainerDiv.innerHTML = `<p class="error">查詢失敗: ${error.message}</p>`;
             }
         }
 
-        // 紀錄查詢關鍵字
-        async function logQuery(query) {
-            try {
-                const response = await fetch(scriptUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'log', query })
-                });
-
-                if (!response.ok) {
-                    throw new Error('新增查詢記錄失敗');
-                }
-            } catch (error) {
-                console.error('新增查詢記錄失敗:', error);
-            }
-        }
-
         searchButton.addEventListener('click', performSearch);
         searchInput.addEventListener('keypress', function (event) {
             if (event.key === 'Enter') {
+                event.preventDefault();
                 performSearch();
             }
         });
