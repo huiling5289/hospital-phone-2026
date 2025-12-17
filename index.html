@@ -68,6 +68,12 @@
             box-sizing: border-box;
             min-width: 0; /* 關鍵修改：允許輸入框在空間不足時縮小，解決爆版問題 */
         }
+        
+        /* 針對 placeholder (提示文字) 設定較小的字體與顏色 */
+        #searchInput::placeholder {
+            font-size: 14px; /* 修改：改為 14px，比原本更小一點 */
+            color: #999;
+        }
 
         #searchButton {
             padding: 10px 15px;
@@ -194,6 +200,7 @@
     <script>
         // 設定 Google Apps Script 部署網址
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgmcGPvDcqFF1XyvAmu2wdhkGF-ie3DVyVkItMpm8KqvP0PjXbHw9QJ8-eL3Wvs7po/exec';
+
         const searchInput = document.getElementById('searchInput');
         const searchButton = document.getElementById('searchButton');
         const resultsContainerDiv = document.getElementById('resultsContainer');
@@ -225,6 +232,7 @@
                 const json = await response.json();
                 return json.ip;
             } catch (error) {
+                console.warn('IP fetch failed:', error); // 增加錯誤紀錄方便除錯
                 return 'unknown';
             }
         }
@@ -251,12 +259,13 @@
                 await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors', // 關鍵：不檢查跨域
+                    keepalive: true, // 關鍵：確保頁面跳轉或關閉前請求能完成
                     headers: {
                         'Content-Type': 'text/plain' // 關鍵：使用純文字避免預檢
                     },
                     body: JSON.stringify(logData)
                 });
-                console.log('Log sent to Google Sheet: ' + deviceType);
+                console.log('Log sent to Google Sheet: ' + deviceType + ', IP: ' + ip);
             } catch (e) {
                 console.error('Log failed', e);
             }
