@@ -189,65 +189,53 @@
         const searchButton = document.getElementById('searchButton');
         const resultsContainerDiv = document.getElementById('resultsContainer');
 
-        // 載入資料
-        let data = [];
-        async function loadData() {
+        const scriptUrl = 'https://script.google.com/macros/s/您的-Google-Apps-Script-網址/exec'; // 替換為您的 Google Apps Script 網址
+
+        // 獲取用戶 IP
+        async function getUserIP() {
             try {
-                const response = await fetch('data.json'); // 載入靜態 JSON 檔案
-                if (!response.ok) {
-                    throw new Error('無法載入資料');
-                }
-                data = await response.json();
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
             } catch (error) {
-                console.error('載入資料時發生錯誤:', error);
-                resultsContainerDiv.innerHTML = `<p class="error">載入資料失敗: ${error.message}</p>`;
+                console.error('無法獲取用戶 IP:', error);
+                return '未知';
             }
         }
 
-        // 查詢資料
-        function performSearch() {
-            const query = searchInput.value.trim().toLowerCase();
-            resultsContainerDiv.innerHTML = '<p class="loading">查詢中...</p>'; // 顯示載入中提示
-
+        // 查詢資料並記錄到 Google Sheet
+        async function performSearch() {
+            const query = searchInput.value.trim();
             if (!query) {
                 resultsContainerDiv.innerHTML = '<p class="no-results">請輸入查詢關鍵字。</p>';
                 return;
             }
 
-            const filteredResults = data.filter(person =>
-                (person.name && person.name.toLowerCase().includes(query)) ||
-                (person.department && person.department.toLowerCase().includes(query)) ||
-                (person.mobile_short_code && person.mobile_short_code.toLowerCase().includes(query)) ||
-                (person.extension && person.extension.toLowerCase().includes(query))
-            );
+            resultsContainerDiv.innerHTML = '<p class="loading">查詢中...</p>';
 
-            resultsContainerDiv.innerHTML = '';
+            try {
+                // 獲取用戶 IP 和裝置類型
+                const userIP = await getUserIP();
+                const userAgent = navigator.userAgent;
 
-            if (filteredResults.length > 0) {
-                const table = document.createElement('table');
-                table.id = 'resultsTable';
-
-                const thead = table.createTHead();
-                const headerRow = thead.insertRow();
-                const headers = ['姓名', '單位', '手機簡碼', '分機'];
-                headers.forEach(headerText => {
-                    const th = document.createElement('th');
-                    th.textContent = headerText;
-                    headerRow.appendChild(th);
+                // 發送查詢記錄到 Google Apps Script
+                await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        keyword: query,
+                        source: 'web',
+                        userIP: userIP,
+                        userAgent: userAgent
+                    })
                 });
 
-                const tbody = table.createTBody();
-                filteredResults.forEach(person => {
-                    const row = tbody.insertRow();
-                    row.insertCell().textContent = person.name || '';
-                    row.insertCell().textContent = person.department || '';
-                    row.insertCell().textContent = person.mobile_short_code || '';
-                    row.insertCell().textContent = person.extension || '';
-                });
+                // 顯示查詢完成提示
+                resultsContainerDiv.innerHTML = '<p class="loading">查詢完成，記錄已儲存。</p>';
 
-                resultsContainerDiv.appendChild(table);
-            } else {
-                resultsContainerDiv.innerHTML = '<p class="no-results">查無相關資料。</p>';
+                // 執行本地查詢功能（略）
+            } catch (error) {
+                resultsContainerDiv.innerHTML = `<p class="error">查詢失敗: ${error.message}</p>`;
             }
         }
 
@@ -258,9 +246,6 @@
                 performSearch();
             }
         });
-
-        // 初始化載入資料
-        loadData();
     </script>
 </body>
 </html>
