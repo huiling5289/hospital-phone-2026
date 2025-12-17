@@ -15,8 +15,8 @@
         /* 預設背景樣式 (電腦版背景) */
         body {
             font-family: Arial, sans-serif;
-            font-size: 18px; /* 全局字體大小 */
-            background-image: url('517.jpg'); /* 電腦版背景圖片 */
+            font-size: 18px;
+            background-image: url('517.jpg');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
@@ -26,8 +26,8 @@
         /* 手機版背景樣式 */
         @media (max-width: 768px) {
             body {
-                background-image: url('0101.jpg'); /* 手機版背景圖片 */
-                background-attachment: scroll; /* 手機版背景不固定 */
+                background-image: url('703.jpg');
+                background-attachment: scroll;
             }
         }
 
@@ -36,9 +36,9 @@
             margin: 20px auto 0;
             background-color: #fff;
             padding: 15px;
-            border-radius: 8px; /* 保持圓角 */
-            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 添加陰影效果 */
-            border: 4px solid #ccc; /* 將邊框粗細改為 4px */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 2px solid #ccc;
         }
 
         h1 {
@@ -58,15 +58,15 @@
         #searchInput {
             flex-grow: 1;
             padding: 12px;
-            font-size: 18px; /* 調整輸入框字體大小 */
-            border: 1px solid #ccc; /* 灰色邊框 */
+            font-size: 18px;
+            border: 1px solid #ccc;
             border-radius: 2px;
             box-sizing: border-box;
         }
 
         #searchButton {
             padding: 10px 15px;
-            font-size: 18px; /* 調整按鈕字體大小 */
+            font-size: 18px;
             background-color: #007bff;
             color: white;
             border: none;
@@ -79,17 +79,10 @@
             background-color: #0056b3;
         }
 
-        .input-note {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 10px;
-            margin-left: 5px;
-        }
-
         .system-remark {
             font-size: 16px;
             color: #888;
-            text-align: left; /* 改為靠左對齊 */
+            text-align: left;
             margin-top: 15px;
             margin-bottom: -10px;
             padding: 5px;
@@ -99,21 +92,20 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
-            border: 1px solid #ccc; /* 表格外框灰色細邊框 */
+            border: 1px solid #ccc;
         }
 
         #resultsTable th, #resultsTable td {
-            border: 1px solid #ccc; /* 單元格灰色細邊框 */
-            padding: 10px; /* 增加單元格內邊距 */
+            border: 1px solid #ccc;
+            padding: 10px;
             text-align: left;
             word-break: break-word;
-            font-size: 18px; /* 調整表格字體大小 */
+            font-size: 18px;
         }
 
         #resultsTable th {
             background-color: #f2f2f2;
             color: #333;
-            white-space: nowrap; /* 加入這一行：強制文字不換行 */
         }
 
         #resultsTable tr:nth-child(even) {
@@ -128,7 +120,7 @@
             text-align: center;
             color: #777;
             margin-top: 20px;
-            font-size: 18px; /* 調整提示文字字體大小 */
+            font-size: 18px;
             padding: 10px;
         }
 
@@ -139,37 +131,6 @@
 
         .no-results {
             color: #555;
-        }
-
-        /* 手機版樣式調整 */
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px; /* 增加手機版的邊界 */
-                padding: 15px; /* 保持內部間距 */
-            }
-
-            h1 {
-                font-size: 22px;
-            }
-
-            #searchInput {
-                padding: 10px;
-                font-size: 16px;
-            }
-
-            #searchButton {
-                padding: 8px 12px;
-                font-size: 16px;
-            }
-
-            .input-note, .system-remark {
-                font-size: 14px;
-            }
-
-            #resultsTable th, #resultsTable td {
-                font-size: 14px;
-                padding: 8px 2px; /* 修改這一行：上下維持8px，左右改為2px，節省空間 */
-            }
         }
     </style>
 </head>
@@ -189,78 +150,84 @@
         const searchButton = document.getElementById('searchButton');
         const resultsContainerDiv = document.getElementById('resultsContainer');
 
-        // 載入資料
-        let data = [];
-        async function loadData() {
-            try {
-                const response = await fetch('data.json'); // 載入靜態 JSON 檔案
-                if (!response.ok) {
-                    throw new Error('無法載入資料');
-                }
-                data = await response.json();
-            } catch (error) {
-                console.error('載入資料時發生錯誤:', error);
-                resultsContainerDiv.innerHTML = `<p class="error">載入資料失敗: ${error.message}</p>`;
-            }
-        }
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxIseE37yzuF1n6nmUGsmDhnpOfx49vSYeWTByW0CNlKIRik1gGLBPlf1rG21uJSWBP/exec';
 
         // 查詢資料
-        function performSearch() {
-            const query = searchInput.value.trim().toLowerCase();
-            resultsContainerDiv.innerHTML = '<p class="loading">查詢中...</p>'; // 顯示載入中提示
+        async function performSearch() {
+            const query = searchInput.value.trim();
 
             if (!query) {
                 resultsContainerDiv.innerHTML = '<p class="no-results">請輸入查詢關鍵字。</p>';
                 return;
             }
 
-            const filteredResults = data.filter(person =>
-                (person.name && person.name.toLowerCase().includes(query)) ||
-                (person.department && person.department.toLowerCase().includes(query)) ||
-                (person.mobile_short_code && person.mobile_short_code.toLowerCase().includes(query)) ||
-                (person.extension && person.extension.toLowerCase().includes(query))
-            );
+            resultsContainerDiv.innerHTML = '<p class="loading">查詢中...</p>';
 
-            resultsContainerDiv.innerHTML = '';
+            try {
+                // 發送查詢請求到 Google Apps Script Web App
+                const response = await fetch(`${scriptUrl}?query=${encodeURIComponent(query)}`);
+                const result = await response.json();
 
-            if (filteredResults.length > 0) {
-                const table = document.createElement('table');
-                table.id = 'resultsTable';
+                // 新增查詢記錄
+                await logQuery(query);
 
-                const thead = table.createTHead();
-                const headerRow = thead.insertRow();
-                const headers = ['姓名', '單位', '手機簡碼', '分機'];
-                headers.forEach(headerText => {
-                    const th = document.createElement('th');
-                    th.textContent = headerText;
-                    headerRow.appendChild(th);
+                if (result.length > 0) {
+                    const table = document.createElement('table');
+                    table.id = 'resultsTable';
+
+                    const thead = table.createTHead();
+                    const headerRow = thead.insertRow();
+                    const headers = ['姓名', '單位', '手機', '分機'];
+                    headers.forEach(headerText => {
+                        const th = document.createElement('th');
+                        th.textContent = headerText;
+                        headerRow.appendChild(th);
+                    });
+
+                    const tbody = table.createTBody();
+                    result.forEach(person => {
+                        const row = tbody.insertRow();
+                        row.insertCell().textContent = person.name || '';
+                        row.insertCell().textContent = person.department || '';
+                        row.insertCell().textContent = person.mobile || '';
+                        row.insertCell().textContent = person.extension || '';
+                    });
+
+                    resultsContainerDiv.innerHTML = '';
+                    resultsContainerDiv.appendChild(table);
+                } else {
+                    resultsContainerDiv.innerHTML = '<p class="no-results">查無相關資料。</p>';
+                }
+            } catch (error) {
+                console.error('查詢失敗:', error);
+                resultsContainerDiv.innerHTML = `<p class="error">查詢失敗: ${error.message}</p>`;
+            }
+        }
+
+        // 紀錄查詢關鍵字
+        async function logQuery(query) {
+            try {
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'log', query })
                 });
 
-                const tbody = table.createTBody();
-                filteredResults.forEach(person => {
-                    const row = tbody.insertRow();
-                    row.insertCell().textContent = person.name || '';
-                    row.insertCell().textContent = person.department || '';
-                    row.insertCell().textContent = person.mobile_short_code || '';
-                    row.insertCell().textContent = person.extension || '';
-                });
-
-                resultsContainerDiv.appendChild(table);
-            } else {
-                resultsContainerDiv.innerHTML = '<p class="no-results">查無相關資料。</p>';
+                if (!response.ok) {
+                    throw new Error('新增查詢記錄失敗');
+                }
+            } catch (error) {
+                console.error('新增查詢記錄失敗:', error);
             }
         }
 
         searchButton.addEventListener('click', performSearch);
         searchInput.addEventListener('keypress', function (event) {
             if (event.key === 'Enter') {
-                event.preventDefault();
                 performSearch();
             }
         });
-
-        // 初始化載入資料
-        loadData();
     </script>
 </body>
 </html>
+
